@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+<script>
+{% block jquery %}
+var endpoint = '/api/diffchart/data/'
+var defaultData = []
+var labels = [];
+$.ajax({
+    method: "GET",
+    url: endpoint,
+    success: function(data){
+
+        labels = data.labels
+        defaultData = data.default
+        df = data.default2
+        title = data.title
+        MK = data.mockData
+        setChart()
+    },
+    error: function(error_data){
+        console.log("error")
+        console.log(error_data)
+    }
+})
+
+function setChart(){
+    var ctx = document.getElementById("myChart").getContext("2d");
+    var myChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: title,
+            data: defaultData,
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderWidth: 0.000001,
+            fill: false
+        }]
+    },
+    options: {
+         tooltips: {
+         callbacks: {
+            label: function(tooltipItem, data) {
+               var label = data.labels[tooltipItem.index];
+               return label + ': (' + tooltipItem.xLabel + ', ' + tooltipItem.yLabel + ')';
+            }
+         }
+      },
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+}
+// var ctx = document.getElementById("myChart");
+
+
+
+{% endblock %}
+</script>
+
+{% block content %}
+
+<div class='row'>
+    <div class='col-sm-12' url-endpoint='{% url "api-data" %}'>
+        <h1>Difference Data Comparision</h1>
+        <div class="col-sm-6">
+            <canvas id="myChart" width="100" height="100"></canvas>
+            <form id="dataChange" method="GET">
+                <select form="dataChange" name="yaxis" id="yaxis" required>
+                    <option disabled="true" selected> Y axis </option>
+                    {% for results in MockData %}
+                        <option>{{ results }}</option>
+                    {% endfor %}
+                </select>
+                <select form="dataChange" name="xaxis" id="xaxis" required>
+                    <option disabled="true" selected> X axis </option>
+                    {% for results in MockData %}
+                        <option>{{ results }}</option>
+                    {% endfor %}
+                </select>
+
+                <br>
+                <input type="submit" value="Change Values" name="Change"/>
+            </form>
+        </div>
+        <div class="col-sm-6">
+            <li>
+            <a href="{% url 'home' %}">Data Comparision</a>
+            </li>
+            <li>
+            <a href="{% url 'mockData_download' %}">Download Data</a>
+            </li>
+            <li>
+            <a href="{% url 'mockData_upload' %}">Upload CSV Data</a>
+            </li>
+            <li>
+            <a href="{% url 'mockdata' %}">Upload Data (Manual)</a>
+            </li>
+            <li>
+            <a href="" onclick="this.href='update/'+document.getElementById('input').value" >Update (Enter PID)</a>
+                <input type="text" id="input">
+            </li>
+            <li>
+            <a href="" onclick="this.href='delete/'+document.getElementById('input1').value" >Delete (Enter PID)</a>
+                <input type="text" id="input1">
+            </li>
+            <li>
+            <a href="{% url 'mockData_deleteall' %}">Delete All Data</a>
+            </li>
+        </div>
+    </div>
+</div>
+{% endblock content %}

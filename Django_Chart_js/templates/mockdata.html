@@ -1,0 +1,10 @@
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <li>
+        <a href="{% url 'home' %}">Home</a>
+        </li>
+    </div>
+    {{ form.as_p }}
+    <button type="submit">Send</button>
+</form>
